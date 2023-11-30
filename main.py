@@ -11,20 +11,51 @@ Created on Thu Nov 30 11:11:54 2023
 """
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords 
+from nltk import stem
 
+# Load the data into a pandas data frame. 
+data = pd.read_csv('Youtube05-Shakira.csv').iloc[:, -2:] # choose last 2 cols
 
-# 1. Load the data into a pandas data frame. 
+# present results.  
+print(data.shape)
+print(data.columns)
+print(data.dtypes)
+print(data.describe())
+print(data.isna().sum())
+print(data.head())
 
-# 2. Carry out some basic data exploration and present your results. 
-# (Note: You only need two columns for this project, make sure you identify 
-# them correctly, if any doubts ask your professor) 
+# prepare corpus
+contents = data['CONTENT']
+classes = data['CLASS']
 
-# 3. Using nltk toolkit classes and methods prepare the data for model 
-# refer to the third lab tutorial in module 11 (Building a Category text 
-# building, predictor ). Use count_vectorizer.fit_transform(). 
+# tokenize(NOTE: tokenize and stop words are included in count_vectorizer)
+# remove stop words and steming
+tokenized_contents = [word_tokenize(text) for text in contents]
+stop_words = set(stopwords.words('English'))
+filtered_contents = [[word for word in sentence if word.lower() not in stop_words]
+                     for sentence in tokenized_contents]    
+stemmer = stem.PorterStemmer()
+stemmed_contents = [[stemmer.stem(word)for word in sentence]
+                     for sentence in filtered_contents]
+# 
+flattened_contents = [' '.join(sentence) for sentence in stemmed_contents] 
+print(tokenized_contents[-7]) # display the results
+print(filtered_contents[-7])
+print(stemmed_contents[-7])
+print(flattened_contents[-7])
+
+# create count_vectorizer
+count_vectorizer = CountVectorizer()
+training_corpus=count_vectorizer.fit_transform(flattened_contents)
 
 # 4. Present highlights of the output (initial features) such as the new shape 
 # of the data and any other useful information before proceeding. 
+print(training_corpus.shape)
+
 
 # 5. Downscale the transformed data using tf-idf and again present highlights 
 # of the output (final features) such as the new shape of the data and any  
