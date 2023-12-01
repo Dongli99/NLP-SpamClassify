@@ -2,12 +2,9 @@
 """
 Created on Thu Nov 30 11:11:54 2023
 
-@project:
+@project: Identify spam comments by training an Naive Bayes classifier
 
-@authors: 
-    Dongli Liu 301268638
-    
-    (Please add your name and student ID)
+@author: Dongli Liu
 """
 import pandas as pd
 import numpy as np
@@ -97,18 +94,13 @@ accuracy = accuracy_score(predictions, testY)
 print(f'The accuracy of the model:{accuracy}')
 
 # new comments test data
-comments = ['Wow ! My god allah this is fantastic blog entry .. fantastic. '\
-            'fantasticly amazing .. amazingly fanastic and brilliantly posted '\
-                'this song. am saying Thanks this faamastic blog Wow!',
-                'I\'d say Shakira has one of the most iconic voices in modern '\
-                    'music history. You can tell because everybody recognizes '\
-                        'a Shakira song even people that aren\'t fans and'\
-                            ' didn\'t grow up with it.',
-                    'vvyzwfhyyjxqjviixdq, mattress toppers, onWZDtrm',
-                    'I love this one❤❤❤❤',
-                    'Thank you very much for all the time sharing this '\
-                        'wonderful music 🎶 I wish you the best God bless you',
-                        'A me piace come cantante Shakira 😘'
+comments = ['just for test I have to say murdev.com',
+            'some of the best party to be had, full applause!!',
+            'Can you please visit my store? just click this link',
+            'I love this one❤❤❤❤',
+            'Thank you very much for all the time sharing this '\
+                'wonderful music 🎶 I wish you the best God bless you',
+                'A me piace come cantante Shakira 😘'
             ]
 # targets dataset
 targets = [1,0,1,0,0,0]
@@ -121,13 +113,3 @@ print('Confusion Matrix:')
 print(conf_matrix_new)
 accuracy_new = accuracy_score(predictions_new, targets)
 print(f'The accuracy of the model:{accuracy_new}')
-
-# 11. As a group come up with 6 new comments (4 comments should be non spam and  
-# 2 comment spam) and pass them to the classifier and check the results. You  
-# can be very creative and even do more Shape happy with light skin tone 
-# emoticon. 
-
-# 12. Present all the results and conclusions. 
-
-# 13. Drop code, report and power point presentation into the project 
-# assessment folder for grading. 
