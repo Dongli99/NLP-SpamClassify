@@ -14,6 +14,9 @@ import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import cross_val_score
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords 
 from nltk import stem
@@ -61,27 +64,63 @@ testY= shuffled_data[train_size:]['CLASS']
 
 # create and fit count_vectorizer
 count_vectorizer = CountVectorizer()
-trainX_vct = count_vectorizer.fit_transform(trainX)
-print(trainX_vct)
-print(trainX_vct.shape)
+trainX_vectorized = count_vectorizer.fit_transform(trainX)
+print(trainX_vectorized)
+print(trainX_vectorized.shape)
 
 # Downscale the transformed data using tf-idf
 tfidf = TfidfTransformer()
-trainX_tfidf = tfidf.fit_transform(trainX_vct)
+trainX_tfidf = tfidf.fit_transform(trainX_vectorized)
 print(trainX_tfidf)
 print(trainX_tfidf.shape)
 
 # Fit the training data into a Naive Bayes classifier.  
-classifier = MultinomialNB()
+classifier = MultinomialNB().fit(trainX_tfidf, trainY)
+
+# Cross-validate the model on the training data using 5-fold
+cv_scores = cross_val_score(classifier, trainX_tfidf, trainY, cv=5)
+print(f'The score of the classifier are {cv_scores}')
+print(f'Mean Accuracy:, {np.mean(cv_scores)}')
 
 
+# transform test dataset
+testX_vectorized = count_vectorizer.transform(testX)
+testX_tfidf = tfidf.transform(testX_vectorized)
+print(testX_tfidf)
+# Test the model on the test data, print the confusion matrix and the  
+# accuracy of the model.
+predictions = classifier.predict(testX_tfidf)
+conf_matrix = confusion_matrix(predictions, testY)
+print('Confusion Matrix:')
+print(conf_matrix)
+accuracy = accuracy_score(predictions, testY)
+print(f'The accuracy of the model:{accuracy}')
 
-
-# 9. Cross validate the model on the training data using 5-fold and print the 
-# mean results of model accuracy. 
-
-# 10. Test the model on the test data, print the confusion matrix and the  
-# accuracy of the model. 
+# new comments test data
+comments = ['Wow ! My god allah this is fantastic blog entry .. fantastic. '\
+            'fantasticly amazing .. amazingly fanastic and brilliantly posted '\
+                'this song. am saying Thanks this faamastic blog Wow!',
+                'I\'d say Shakira has one of the most iconic voices in modern '\
+                    'music history. You can tell because everybody recognizes '\
+                        'a Shakira song even people that aren\'t fans and'\
+                            ' didn\'t grow up with it.',
+                    'vvyzwfhyyjxqjviixdq, mattress toppers, onWZDtrm',
+                    'I love this one❤❤❤❤',
+                    'Thank you very much for all the time sharing this '\
+                        'wonderful music 🎶 I wish you the best God bless you',
+                        'A me piace come cantante Shakira 😘'
+            ]
+# targets dataset
+targets = [1,0,1,0,0,0]
+# predict
+predictions_new = classifier.predict(
+    tfidf.transform(count_vectorizer.transform(comments)))
+# evaluate prediction
+conf_matrix_new = confusion_matrix(predictions_new, targets)
+print('Confusion Matrix:')
+print(conf_matrix_new)
+accuracy_new = accuracy_score(predictions_new, targets)
+print(f'The accuracy of the model:{accuracy_new}')
 
 # 11. As a group come up with 6 new comments (4 comments should be non spam and  
 # 2 comment spam) and pass them to the classifier and check the results. You  
