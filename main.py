@@ -11,8 +11,9 @@ Created on Thu Nov 30 11:11:54 2023
 """
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.naive_bayes import MultinomialNB
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords 
 from nltk import stem
@@ -28,46 +29,53 @@ print(data.describe())
 print(data.isna().sum())
 print(data.head())
 
-# prepare corpus
-contents = data['CONTENT']
-classes = data['CLASS']
+# prepare train and test datasets
+# shuffle data using pandas.sample
+shuffled_data = data.sample(frac=1, random_state=38)
 
 # tokenize(NOTE: tokenize and stop words are included in count_vectorizer)
 # remove stop words and steming
-tokenized_contents = [word_tokenize(text) for text in contents]
+tokenized_comments = [word_tokenize(text) for text in shuffled_data['CONTENT']]
 stop_words = set(stopwords.words('English'))
-filtered_contents = [[word for word in sentence if word.lower() not in stop_words]
-                     for sentence in tokenized_contents]    
+filtered_comments = [[word for word in sentence if word.lower() not in stop_words]
+                     for sentence in tokenized_comments]    
 stemmer = stem.PorterStemmer()
-stemmed_contents = [[stemmer.stem(word)for word in sentence]
-                     for sentence in filtered_contents]
-# 
-flattened_contents = [' '.join(sentence) for sentence in stemmed_contents] 
-print(tokenized_contents[-7]) # display the results
-print(filtered_contents[-7])
-print(stemmed_contents[-7])
-print(flattened_contents[-7])
+stemmed_comments = [[stemmer.stem(word)for word in sentence]
+                     for sentence in filtered_comments]
+# flatten the list
+flattened_comments = [' '.join(sentence) for sentence in stemmed_comments] 
+print(tokenized_comments[-1]) # display the results
+print(filtered_comments[-1])
+print(stemmed_comments[-1])
+print(flattened_comments[-1])
 
-# create count_vectorizer
+# join the prepared content to the data
+shuffled_data['CONTENT'] = flattened_comments
+
+# split the shuffl
+train_size = int(0.75 * len(shuffled_data))
+trainX = shuffled_data[:train_size]['CONTENT']
+trainY = shuffled_data[:train_size]['CLASS']
+testX = shuffled_data[train_size:]['CONTENT']
+testY= shuffled_data[train_size:]['CLASS']
+
+# create and fit count_vectorizer
 count_vectorizer = CountVectorizer()
-training_corpus=count_vectorizer.fit_transform(flattened_contents)
+trainX_vct = count_vectorizer.fit_transform(trainX)
+print(trainX_vct)
+print(trainX_vct.shape)
 
-# 4. Present highlights of the output (initial features) such as the new shape 
-# of the data and any other useful information before proceeding. 
-print(training_corpus.shape)
+# Downscale the transformed data using tf-idf
+tfidf = TfidfTransformer()
+trainX_tfidf = tfidf.fit_transform(trainX_vct)
+print(trainX_tfidf)
+print(trainX_tfidf.shape)
+
+# Fit the training data into a Naive Bayes classifier.  
+classifier = MultinomialNB()
 
 
-# 5. Downscale the transformed data using tf-idf and again present highlights 
-# of the output (final features) such as the new shape of the data and any  
-# other useful information before proceeding. 
 
-# 6. Use pandas.sample to shuffle the dataset, set frac =1  
-
-# 7. Using pandas split your dataset into 75% for training and 25% for testing, 
-# make sure to separate the class from the feature(s). 
-# (Do not use test_train_ split) 
-
-# 8. Fit the training data into a Naive Bayes classifier.  
 
 # 9. Cross validate the model on the training data using 5-fold and print the 
 # mean results of model accuracy. 
