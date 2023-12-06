@@ -15,8 +15,8 @@ from sklearn.model_selection import cross_val_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords 
-from nltk import stem
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
 
 # Load the data into a pandas data frame. 
 data = pd.read_csv('Youtube05-Shakira.csv').iloc[:, -2:] # choose last 2 cols
@@ -39,7 +39,7 @@ tokenized_comments = [word_tokenize(text) for text in shuffled_data['CONTENT']]
 stop_words = set(stopwords.words('English'))
 filtered_comments = [[word for word in sentence if word.lower() not in stop_words]
                      for sentence in tokenized_comments]    
-stemmer = stem.PorterStemmer()
+stemmer = PorterStemmer()
 stemmed_comments = [[stemmer.stem(word)for word in sentence]
                      for sentence in filtered_comments]
 # flatten the list
@@ -78,7 +78,6 @@ classifier = MultinomialNB().fit(trainX_tfidf, trainY)
 cv_scores = cross_val_score(classifier, trainX_tfidf, trainY, cv=5)
 print(f'The score of the classifier are {cv_scores}')
 print(f'Mean Accuracy:, {np.mean(cv_scores)}')
-
 
 # transform test dataset
 testX_vectorized = count_vectorizer.transform(testX)
